@@ -78,7 +78,7 @@ export function referenceFunction(event: Redeem): void {
   // - contract.token(...)
 }
 
-function getNextEventId(): BigInt {
+function getNextEventId(): string {
   let entity = TotalEvents.load("1");
 
   if (entity == null) {
@@ -88,12 +88,14 @@ function getNextEventId(): BigInt {
 
   let newCount = entity.count.plus(BigInt.fromI32(1));
   entity.count = newCount;
-  return newCount;
+
+  entity.save();
+  return newCount.toString();
 }
 
 export function handleRedeem(event: Redeem): void {
   let id = getNextEventId();
-  let entity = new RedeemEntity(id.toString());
+  let entity = new RedeemEntity(id);
 
   entity._lockingId = event.params._lockingId;
   entity._beneficiary = event.params._beneficiary;
@@ -105,7 +107,7 @@ export function handleRedeem(event: Redeem): void {
 
 export function handleRelease(event: Release): void {
   let id = getNextEventId();
-  let entity = new ReleaseEntity(id.toString());
+  let entity = new ReleaseEntity(id);
 
   entity._lockingId = event.params._lockingId;
   entity._beneficiary = event.params._beneficiary;
@@ -116,7 +118,7 @@ export function handleRelease(event: Release): void {
 
 export function handleLockToken(event: LockToken): void {
   let id = getNextEventId();
-  let entity = new LockTokenEntity(id.toString());
+  let entity = new LockTokenEntity(id);
 
   entity._locker = event.params._locker;
   entity._lockingId = event.params._lockingId;
@@ -128,7 +130,7 @@ export function handleLockToken(event: LockToken): void {
 
 export function handleExtendLocking(event: ExtendLocking): void {
   let id = getNextEventId();
-  let entity = new ExtendLockingEntity(id.toString());
+  let entity = new ExtendLockingEntity(id);
 
   entity._locker = event.params._locker;
   entity._lockingId = event.params._lockingId;
