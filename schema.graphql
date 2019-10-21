@@ -1,6 +1,42 @@
-type ExampleEntity @entity {
-  id: ID!
-  count: BigInt!
+type RedeemEntity @entity {
+  id: ID! # Incrementing ID, 1, 2, etc, as txhashes can contain multiple events
   _lockingId: BigInt! # uint256
   _beneficiary: Bytes! # address
+  _amount: BigInt! # uint256
+  _batchIndex: BigInt! # uint256
+}
+
+type LockTokenEntity @entity {
+  id: ID! # Incrementing ID, 1, 2, etc, as txhashes can contain multiple events
+  _locker: Bytes! # address
+  _lockingId: BigInt! # uint256
+  _amount: BigInt! # uint256
+  _period: BigInt! # uint256
+}
+
+type ExtendLockingEntity @entity {
+  id: ID! # Incrementing ID, 1, 2, etc, as txhashes can contain multiple events
+  _locker: Bytes! # address
+  _lockingId: BigInt! # uint256
+  _extendPeriod: BigInt! # uint256
+}
+
+type ReleaseEntity @entity {
+  id: ID! # Incrementing ID, 1, 2, etc, as txhashes can contain multiple events
+  _lockingId: BigInt! # uint256
+  _beneficiary: Bytes! # address
+  _amount: BigInt! # uint256
+}
+
+type BatchDataEntity @entity {
+  id: ID!
+  lockCount: BigInt!
+  batchId: BigInt!
+  userScore: BigInt! # address
+  totalScore: BigInt! # uint256
+}
+
+type TotalEvents @entity {
+  id: ID!
+  count: BigInt!
 }

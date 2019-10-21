@@ -1,36 +1,44 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { BigInt } from "@graphprotocol/graph-ts";
 import {
   Contract,
   Redeem,
   Release,
   LockToken,
   ExtendLocking
-} from "../generated/Contract/Contract"
-import { ExampleEntity } from "../generated/schema"
+} from "../generated/Contract/Contract";
+import {
+  RedeemEntity,
+  LockTokenEntity,
+  ExtendLockingEntity,
+  ReleaseEntity,
+  TotalEvents
+} from "../generated/schema";
 
-export function handleRedeem(event: Redeem): void {
+export function referenceFunction(event: Redeem): void {
   // Entities can be loaded from the store using a string ID; this ID
   // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
+  let entity = RedeemEntity.load(event.transaction.from.toHex());
 
   // Entities only exist after they have been saved to the store;
   // `null` checks allow to create entities on demand
   if (entity == null) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
+    entity = new RedeemEntity(event.transaction.from.toHex());
 
     // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
+    entity.count = BigInt.fromI32(0);
   }
 
   // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
+  entity.count = entity.count + BigInt.fromI32(1);
 
   // Entity fields can be set based on event parameters
-  entity._lockingId = event.params._lockingId
-  entity._beneficiary = event.params._beneficiary
+  entity._lockingId = event.params._lockingId;
+  entity._beneficiary = event.params._beneficiary;
+  entity._amount = event.params._amount;
+  entity._batchIndex = event.params._batchIndex;
 
   // Entities can be written to the store with `.save()`
-  entity.save()
+  entity.save();
 
   // Note: If a handler doesn't require existing field values, it is faster
   // _not_ to load the entity from the store. Instead, create it fresh with
@@ -70,8 +78,60 @@ export function handleRedeem(event: Redeem): void {
   // - contract.token(...)
 }
 
-export function handleRelease(event: Release): void {}
+function getNextEventId() {
+  let entity = TotalEvents.load(1);
 
-export function handleLockToken(event: LockToken): void {}
+  if (entity == null) {
+    entity = new TotalEvents(1);
+    entity.count = BigInt.fromI32(0);
+  }
 
-export function handleExtendLocking(event: ExtendLocking): void {}
+  entity.count = entity.count + BigInt.fromI32(1);
+  return entity.count;
+}
+
+export function handleRedeem(event: Redeem): void {
+  let id = getNextEventId();
+  let entity = new RedeemEntity(id);
+
+  entity._lockingId = event.params._lockingId;
+  entity._beneficiary = event.params._beneficiary;
+  entity._amount = event.params._amount;
+  entity._batchIndex = event.params._batchIndex;
+
+  entity.save();
+}
+
+export function handleRelease(event: Release): void {
+  let id = getNextEventId();
+  let entity = new ReleaseEntity(id);
+
+  entity._lockingId = event.params._lockingId;
+  entity._beneficiary = event.params._beneficiary;
+  entity._amount = event.params._amount;
+
+  entity.save();
+}
+
+export function handleLockToken(event: LockToken): void {
+  let id = getNextEventId();
+  let entity = new LockTokenEntity(id);
+
+  entity._locker = event.params._locker;
+  entity._lockingId = event.params._lockingId;
+  entity._amount = event.params._amount;
+  entity._period = event.params._period;
+
+  entity.save();
+}
+
+export function handleExtendLocking(event: ExtendLocking): void {
+  let id = getNextEventId();
+  let entity = new ExtendLockingEntity(id);
+
+  entity._locker = event.params._locker;
+  entity._lockingId = event.params._lockingId;
+  entity._extendPeriod = event.params._extendPeriod;
+
+  entity.save();
+}
