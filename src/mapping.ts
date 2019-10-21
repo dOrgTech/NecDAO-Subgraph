@@ -1,4 +1,4 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
   Contract,
   Redeem,
@@ -11,8 +11,26 @@ import {
   LockTokenEntity,
   ExtendLockingEntity,
   ReleaseEntity,
-  TotalEvents
+  TotalEvents,
+  Lock
 } from "../generated/schema";
+
+// export type CreateLockParameters = {
+//   locker: Bytes;
+//   lockingId: BigInt;
+//   amount: BigInt;
+//   period: BigInt;
+// };
+
+// export type ExtendLockParameters = {
+//   locker: Bytes;
+//   lockingId: BigInt;
+//   extendPeriod: BigInt;
+// };
+
+// export type ReleaseLockParameters = {
+//   lockingId: BigInt;
+// };
 
 export function referenceFunction(event: Redeem): void {
   // Entities can be loaded from the store using a string ID; this ID
@@ -78,6 +96,36 @@ export function referenceFunction(event: Redeem): void {
   // - contract.token(...)
 }
 
+function createLock(params: LockTokenEntity, event: LockToken): void {
+  let entity = Lock.load(params._lockingId.toString());
+  if (entity == null) {
+    entity = new Lock(params._lockingId.toString());
+  }
+
+  entity.locker = params._locker;
+  entity.period = params._period;
+  entity.amount = params._amount;
+  entity.lockTimestamp = event.block.timestamp;
+  entity.periodDuration = params._period;
+  entity.released = false;
+
+  entity.save();
+}
+
+function extendLock(params: ExtendLockingEntity, event: ExtendLocking): void {
+  let entity = Lock.load(params._lockingId.toString());
+
+  entity.periodDuration = entity.period.plus(params._extendPeriod);
+  entity.save();
+}
+
+function releaseLock(params: ReleaseEntity): void {
+  let entity = Lock.load(params._lockingId.toString());
+
+  entity.released = true;
+  entity.save();
+}
+
 function getNextEventId(): string {
   let entity = TotalEvents.load("1");
 
@@ -114,6 +162,8 @@ export function handleRelease(event: Release): void {
   entity._amount = event.params._amount;
 
   entity.save();
+
+  releaseLock(entity);
 }
 
 export function handleLockToken(event: LockToken): void {
@@ -126,6 +176,8 @@ export function handleLockToken(event: LockToken): void {
   entity._period = event.params._period;
 
   entity.save();
+
+  createLock(entity, event);
 }
 
 export function handleExtendLocking(event: ExtendLocking): void {
@@ -137,4 +189,6 @@ export function handleExtendLocking(event: ExtendLocking): void {
   entity._extendPeriod = event.params._extendPeriod;
 
   entity.save();
+
+  extendLock(entity, event);
 }

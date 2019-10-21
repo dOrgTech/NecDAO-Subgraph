@@ -368,3 +368,88 @@ export class TotalEvents extends Entity {
     this.set("count", Value.fromBigInt(value));
   }
 }
+
+export class Lock extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Lock entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Lock entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Lock", id.toString(), this);
+  }
+
+  static load(id: string): Lock | null {
+    return store.get("Lock", id) as Lock | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get locker(): Bytes {
+    let value = this.get("locker");
+    return value.toBytes();
+  }
+
+  set locker(value: Bytes) {
+    this.set("locker", Value.fromBytes(value));
+  }
+
+  get period(): BigInt {
+    let value = this.get("period");
+    return value.toBigInt();
+  }
+
+  set period(value: BigInt) {
+    this.set("period", Value.fromBigInt(value));
+  }
+
+  get amount(): BigInt {
+    let value = this.get("amount");
+    return value.toBigInt();
+  }
+
+  set amount(value: BigInt) {
+    this.set("amount", Value.fromBigInt(value));
+  }
+
+  get released(): boolean {
+    let value = this.get("released");
+    return value.toBoolean();
+  }
+
+  set released(value: boolean) {
+    this.set("released", Value.fromBoolean(value));
+  }
+
+  get lockTimestamp(): BigInt {
+    let value = this.get("lockTimestamp");
+    return value.toBigInt();
+  }
+
+  set lockTimestamp(value: BigInt) {
+    this.set("lockTimestamp", Value.fromBigInt(value));
+  }
+
+  get periodDuration(): BigInt {
+    let value = this.get("periodDuration");
+    return value.toBigInt();
+  }
+
+  set periodDuration(value: BigInt) {
+    this.set("periodDuration", Value.fromBigInt(value));
+  }
+}

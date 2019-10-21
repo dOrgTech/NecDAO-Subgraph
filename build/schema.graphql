@@ -40,3 +40,13 @@ type TotalEvents @entity {
   id: ID!
   count: BigInt!
 }
+
+type Lock @entity {
+  id: ID! # lockingId from blockchain
+  locker: Bytes! # address
+  period: BigInt! # uint256
+  amount: BigInt! # uint256
+  released: Boolean # bool
+  lockTimestamp: BigInt! # uint256
+  periodDuration: BigInt! # uint256
+}
