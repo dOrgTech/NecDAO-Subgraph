@@ -1,0 +1,32 @@
+specVersion: 0.0.2
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Contract
+    network: rinkeby
+    source:
+      address: "0x28D8ce7be90035cC70adD2B4933c0d538fF2a189"
+      abi: Contract
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Redeem
+        - Release
+        - LockToken
+        - ExtendLocking
+      abis:
+        - name: Contract
+          file: Contract/abis/Contract.json
+      eventHandlers:
+        - event: Redeem(indexed uint256,indexed address,uint256,uint256)
+          handler: handleRedeem
+        - event: Release(indexed uint256,indexed address,uint256)
+          handler: handleRelease
+        - event: LockToken(indexed address,indexed uint256,uint256,uint256)
+          handler: handleLockToken
+        - event: ExtendLocking(indexed address,indexed uint256,uint256)
+          handler: handleExtendLocking
+      file: Contract/Contract.wasm

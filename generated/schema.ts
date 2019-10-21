@@ -185,13 +185,13 @@ export class ExtendLockingEntity extends Entity {
     this.set("_lockingId", Value.fromBigInt(value));
   }
 
-  get _beneficiary(): Bytes {
-    let value = this.get("_beneficiary");
+  get _locker(): Bytes {
+    let value = this.get("_locker");
     return value.toBytes();
   }
 
-  set _beneficiary(value: Bytes) {
-    this.set("_beneficiary", Value.fromBytes(value));
+  set _locker(value: Bytes) {
+    this.set("_locker", Value.fromBytes(value));
   }
 
   get _extendPeriod(): BigInt {
